@@ -74,9 +74,11 @@ class WorkermanWebSocketController extends Controller
             $socket->on('new message', function ($data)use($socket){
                 // we tell the client to execute 'new message'
                 $decode = json_decode($data);
+                $id = $decode->{'id'};
                 $message = $decode->{'message'};
                 $room = $decode->{'room'};
                 $socket->broadcast->to($room)->emit('new message', array(
+                    'id' => $id,
                     'username'=> $socket->username,
                     'message'=> $message
                 ));
@@ -92,6 +94,7 @@ class WorkermanWebSocketController extends Controller
             return;
                 global $usernames, $numUsers;
                 $decode = json_decode($data);
+                $id = $decode->{'id'};
                 $username  = $decode->{'username'};
                 $room = $decode->{'room'};
                 
@@ -100,11 +103,14 @@ class WorkermanWebSocketController extends Controller
                 ++$numUsers;
                 $socket->addedUser = true;
                 $io->sockets->to($room)->emit('login', array( 
+                    'id' => $id,
                     'numUsers' => $numUsers,
                     'room' => $room
                 ));
                 // echo globally (all clients) that a person has connected
                 $socket->broadcast->to($room)->emit('user joined', array(
+                    'id' => $id,
+                    // 'username' => $username,
                     'username' => $socket->username,
                     'numUsers' => $numUsers,
                     'room' => $room
