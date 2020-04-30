@@ -73,9 +73,12 @@ class WorkermanWebSocketController extends Controller
             // when the client emits 'new message', this listens and executes
             $socket->on('new message', function ($data)use($socket){
                 // we tell the client to execute 'new message'
-                $socket->broadcast->emit('new message', array(
+                $decode = json_decode($data);
+                $message = $decode->{'message'};
+                $room = $decode->{'room'};
+                $socket->broadcast->to($room)->emit('new message', array(
                     'username'=> $socket->username,
-                    'message'=> $data
+                    'message'=> $message
                 ));
             });
 
